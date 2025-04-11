@@ -111,15 +111,29 @@ const Search = () => {
 
       {weatherData && (
         <Row>
-          <Col sm={8} md={4} className="offset-sm-2 offset-md-4">
+          <Col
+            sm={8}
+            md={6}
+            xl={4}
+            className="offset-sm-2 offset-md-3 offset-xl-4"
+          >
             <Card className="mt-5 d-flex flex-column align-items-center py-4">
               <h2>Dati Meteo per {weatherData.name}</h2>
               <p>Temperatura: {Math.round(weatherData.main.temp - 273.15)}°C</p>
               <p>Descrizione: {weatherData.weather[0].description}</p>
               <p>Umidità: {weatherData.main.humidity}%</p>
-              <Button onClick={handleDetailsClick} className="w-25">
-                Maggiori dettagli
-              </Button>
+              <Container fluid>
+                <Row
+                  className="d-flex
+                flex-column align-items-center"
+                >
+                  <Col xs={8} md={7} xl={6}>
+                    <Button onClick={handleDetailsClick} className="w-100">
+                      Maggiori dettagli
+                    </Button>
+                  </Col>
+                </Row>
+              </Container>
             </Card>
           </Col>
         </Row>
