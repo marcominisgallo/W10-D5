@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   Container,
   Form,
@@ -7,6 +7,9 @@ import {
   Card,
   Row,
   Col,
+  Overlay,
+  Offcanvas,
+  ListGroup,
 } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 
@@ -20,7 +23,11 @@ const Search = () => {
   const [weatherData, setWeatherData] = useState("");
   const [error, setError] = useState(false);
   const [backgroundImage, setBackgroundImage] = useState(null);
+  const [searchHistory, setSearchHistory] = useState([]);
   const navigate = useNavigate();
+  const [show, setShow] = useState(false);
+  const handleClose = () => setShow(false);
+  const handleShow = () => setShow(true);
 
   const handleDetailsClick = () => {
     if (weatherData) {
@@ -28,6 +35,23 @@ const Search = () => {
     } else {
       setError("Nessun dato meteo disponibile per visualizzare i dettagli.");
     }
+  };
+
+  useEffect(() => {
+    const storedHistory = localStorage.getItem("searchHistory");
+    if (storedHistory) {
+      setSearchHistory(JSON.parse(storedHistory));
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem("searchHistory", JSON.stringify(searchHistory));
+  }, [searchHistory]);
+
+  const handleDelete = (item) => {
+    setSearchHistory((prevHistory) =>
+      prevHistory.filter((historyItem) => historyItem !== item)
+    );
   };
 
   const handleSubmit = (e) => {
@@ -50,6 +74,7 @@ const Search = () => {
       .then((data) => {
         console.log(data);
         setWeatherData(data);
+        setSearchHistory((prevHistory) => [...prevHistory, city]);
 
         return fetch(`${PexelsUrl}${city}`, {
           headers: {
@@ -83,7 +108,7 @@ const Search = () => {
         backgroundImage: backgroundImage ? `url(${backgroundImage})` : "none",
         backgroundSize: "cover",
         backgroundPosition: "center",
-        minHeight: "100vh",
+        minHeight: "88vh",
         color: backgroundImage ? "white" : "black",
       }}
     >
@@ -138,6 +163,41 @@ const Search = () => {
           </Col>
         </Row>
       )}
+      <Container className="mt-3">
+        <Button variant="danger" onClick={handleShow}>
+          Ricerche recenti
+        </Button>
+
+        <Offcanvas show={show} onHide={handleClose}>
+          <Offcanvas.Header closeButton>
+            <Offcanvas.Title>Ricerche recenti</Offcanvas.Title>
+          </Offcanvas.Header>
+          <Offcanvas.Body>
+            {searchHistory.length > 0 ? (
+              <ListGroup>
+                {searchHistory.map((item, index) => (
+                  <ListGroup.Item
+                    key={index}
+                    className="d-flex justify-content-between align-items-center"
+                  >
+                    {item}
+                    <Button
+                      variant="danger"
+                      size="sm"
+                      onClick={() => handleDelete(item)}
+                    >
+                      Elimina
+                    </Button>
+                  </ListGroup.Item>
+                ))}
+              </ListGroup>
+            ) : (
+              <p>Nessuna ricerca recente.</p>
+            )}
+          </Offcanvas.Body>
+        </Offcanvas>
+      </Container>
+
       <div className="mt-4">
         <svg width="450" height="120" xmlns="http://www.w3.org/2000/svg">
           <defs>
