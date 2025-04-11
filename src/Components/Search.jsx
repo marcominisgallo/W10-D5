@@ -1,24 +1,37 @@
 import React, { useState } from "react";
-import { Container, Form, Button } from "react-bootstrap";
+import {
+  Container,
+  Form,
+  Button,
+  Alert,
+  Card,
+  Row,
+  Col,
+} from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 
-const URL = "https://api.openweathermap.org/data/2.5/forecast?q=";
+const URL = "https://api.openweathermap.org/data/2.5/weather?q=";
 const APIkey = "&lang=it&appid=9cbaaaa522c58d0d33a66d2c7b365d26";
+const PexelsUrl = "https://api.pexels.com/v1/search?query=";
+const PexelsApiKey = "0aNgG7y14W7ZnAFgv0os2UpOU49ZwjNTUFuPikAXjaZrbo0QQ9abUcFX";
 
 const Search = () => {
   const [city, setCity] = useState("");
   const [weatherData, setWeatherData] = useState("");
   const [error, setError] = useState(false);
+  const [backgroundImage, setBackgroundImage] = useState(null);
   const navigate = useNavigate();
 
   const handleDetailsClick = () => {
-    navigate("/details");
+    if (weatherData) {
+      navigate("/details", { state: { weatherData } });
+    } else {
+      setError("Nessun dato meteo disponibile per visualizzare i dettagli.");
+    }
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    setError(false);
-    setWeatherData("");
 
     if (city.trim() === "") {
       setError("Il campo città non può essere vuoto.");
@@ -35,15 +48,45 @@ const Search = () => {
         return response.json();
       })
       .then((data) => {
-        setWeatherData(data); // Salva i dati meteo nello stato
+        console.log(data);
+        setWeatherData(data);
+
+        return fetch(`${PexelsUrl}${city}`, {
+          headers: {
+            Authorization: PexelsApiKey,
+          },
+        });
+      })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Errore nel caricamento dell'immagine di sfondo.");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        if (data.photos && data.photos.length > 0) {
+          setBackgroundImage(data.photos[1].src.large);
+        } else {
+          setError("Nessuna immagine trovata per questa città.");
+        }
       })
       .catch((err) => {
-        setError(err.message); // Gestisce eventuali errori
+        setError(err.message);
       });
   };
 
   return (
-    <Container className="mt-5 text-center">
+    <Container
+      fluid
+      className="pt-5 text-center"
+      style={{
+        backgroundImage: backgroundImage ? `url(${backgroundImage})` : "none",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        minHeight: "100vh",
+        color: backgroundImage ? "white" : "black",
+      }}
+    >
       <h1 className="text-center">Cerca la tua città</h1>
       <Form onSubmit={handleSubmit} className="mt-4">
         <div className="d-flex align-items-center justify-content-center">
@@ -67,15 +110,19 @@ const Search = () => {
       )}
 
       {weatherData && (
-        <div className="mt-5">
-          <h2>Dati Meteo per {weatherData.city.name}</h2>
-          <p>
-            Temperatura: {Math.round(weatherData.list[0].main.temp - 273.15)}°C
-          </p>
-          <p>Descrizione: {weatherData.list[0].weather[0].description}</p>
-          <p>Umidità: {weatherData.list[0].main.humidity}%</p>
-          <Button onClick={handleDetailsClick}>Maggiori dettagli</Button>
-        </div>
+        <Row>
+          <Col sm={8} md={4} className="offset-sm-2 offset-md-4">
+            <Card className="mt-5 d-flex flex-column align-items-center py-4">
+              <h2>Dati Meteo per {weatherData.name}</h2>
+              <p>Temperatura: {Math.round(weatherData.main.temp - 273.15)}°C</p>
+              <p>Descrizione: {weatherData.weather[0].description}</p>
+              <p>Umidità: {weatherData.main.humidity}%</p>
+              <Button onClick={handleDetailsClick} className="w-25">
+                Maggiori dettagli
+              </Button>
+            </Card>
+          </Col>
+        </Row>
       )}
       <div className="mt-4">
         <svg width="450" height="120" xmlns="http://www.w3.org/2000/svg">

@@ -4,6 +4,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import MyFooter from "./Components/MyFooter";
 import Home from "./Components/Home";
 import Search from "./Components/Search";
+import Details from "./Components/Details";
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/search" element={<Search />} />
+              <Route path="/details/" element={<Details />} />
             </Routes>
           </main>
           <footer className="bg-primary">
