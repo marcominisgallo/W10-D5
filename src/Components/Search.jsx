@@ -78,7 +78,7 @@ const Search = () => {
   return (
     <Container
       fluid
-      className="pt-5 text-center"
+      className="text-center d-flex flex-column justify-content-center"
       style={{
         backgroundImage: backgroundImage ? `url(${backgroundImage})` : "none",
         backgroundSize: "cover",
@@ -87,8 +87,8 @@ const Search = () => {
         color: backgroundImage ? "white" : "black",
       }}
     >
-      <h1 className="text-center">Cerca la tua città</h1>
-      <Form onSubmit={handleSubmit} className="mt-4">
+      <h1 className="text-center mb-5">Cerca la tua città</h1>
+      <Form onSubmit={handleSubmit} className="mt-5">
         <div className="d-flex align-items-center justify-content-center">
           <Form.Control
             type="text"
