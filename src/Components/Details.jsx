@@ -25,7 +25,7 @@ const Details = () => {
         })
         .then((data) => {
           if (data.photos && data.photos.length > 0) {
-            setBackgroundImage(data.photos[1].src.large); // Imposta l'immagine di sfondo
+            setBackgroundImage(data.photos[1].src.large);
           } else {
             console.error("Nessuna immagine trovata per questa città.");
           }
